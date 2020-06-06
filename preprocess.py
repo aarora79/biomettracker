@@ -22,6 +22,7 @@ Action
 49.7 %
 Edit | Delete
 """
+import os
 import re
 import sys
 import logging
@@ -34,6 +35,7 @@ APP_NAME = "preprocess"
 CSV_HEADER = "Date,Weight,BMI,Body Fat,Lean Mass,Muscle Percentage,Water Percentage\n"
 NUM_HEADER_TOKENS_PRESENT = 8
 NUM_HEADER_FIELDS_NEEDED = NUM_HEADER_TOKENS_PRESENT - 1
+OUTPUT_DIR = "data"
 
 
 '''
@@ -103,9 +105,11 @@ def main():
             formatted_line = []
         i += 1
     logger.info(f"header line=\"{header}\"")
-    logger.info(f"going to write {len(formatted_lines)} lines to {args.output_filename}")
 
-    with open(args.output_filename, 'w') as f:
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    file_path = os.path.join(OUTPUT_DIR, args.output_filename)
+    logger.info(f"going to write {len(formatted_lines)} lines to {file_path}")
+    with open(file_path, 'w') as f:
         f.write("%s\n" % header)
         for l in formatted_lines:
             f.write("%s\n" % l)
