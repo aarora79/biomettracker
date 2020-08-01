@@ -1,0 +1,537 @@
+---
+title: "Biometric Tracker"
+output:
+  flexdashboard::flex_dashboard: null
+  orientation: columns
+  vertical_layout: fill
+runtime: shiny
+---
+  
+```{r setup, include=FALSE}
+library(zoo)
+library(glue)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(ggrepel)
+library(prophet)
+library(ggthemes)
+library(dygraphs)
+library(lubridate)
+library(tidyverse)
+library(flexdashboard)
+library(futile.logger)
+
+# load code from other files in this package
+source("globals.R")
+source("forecast_wt_loss_timeseries.R")
+
+# in this section of the code we will do all our data reading, cleaning, wrangling...basically
+# everything except the timeseries forecasting bit so that the rest of the sections simply display the 
+# charts based on the data analysis done here. The forecasting is left to its own section later in the code
+# because it is based on user input and so it needs to be done redone whenever the input changes.
+
+# setup logging so that traces are shown on the console and in a log file as well
+flog.appender(appender.tee(LOG_FILE), name=LOGGER)
+
+# print the parameters used
+flog.info(glue("params used:
+                START_DATE={START_DATE},
+                DATA_DIR={DATA_DIR},
+                P1_NAME={P1_NAME},
+                P2_NAME={P2_NAME},
+                P1_DATA_FPATH={P1_DATA_FPATH},
+                P2_DATA_FPATH={P2_DATA_FPATH},
+                CAPTION={CAPTION},
+                IMPORTANT_DATES_FNAME={IMPORTANT_DATES_FNAME},
+                IMPORTANT_DATES_FPATH={IMPORTANT_DATES_FPATH},
+                NUDGE_X={NUDGE_X},
+                NUDGE_Y={NUDGE_Y},
+                P1_TARGET_WEIGHT={P1_TARGET_WEIGHT},
+                P1_WEIGHT_CAP={P1_WEIGHT_CAP},
+                P1_WEIGHT_FLOOR={P1_WEIGHT_FLOOR},
+                P2_TARGET_WEIGHT={P2_TARGET_WEIGHT},
+                P2_WEIGHT_CAP={P2_WEIGHT_CAP},
+                P2_WEIGHT_FLOOR={P2_WEIGHT_FLOOR}"), name=LOGGER)
+
+
+# read the raw data for person 1, print basic summary and metadata
+df_P1 <- read_csv(P1_DATA_FPATH) %>%
+  mutate(name=P1_NAME) %>%
+  arrange(Date) %>%
+  filter(Date >= START_DATE)
+flog.info(glue("read data for {P1_NAME} from {P1_DATA_FPATH}, shape of dataframe={nrow(df_P1)}x{ncol(df_P1)}"), name=LOGGER)
+flog.info(head(df_P1), name=LOGGER)
+flog.info(summary(df_P1), name=LOGGER)
+
+# read the raw data for person 2, ultimately we want to have this dashboard work the same way
+# even if there was only person 1 so put the following in an if checl
+if(!is.na(P2_NAME)) {
+  df_P2 <- read_csv(P2_DATA_FPATH) %>%
+    mutate(name=P2_NAME) %>%
+    arrange(Date) %>%
+    filter(Date >= START_DATE)
+  flog.info(glue("read data for {P2_NAME} from {P2_DATA_FPATH}, shape of dataframe={nrow(df_P2)}x{ncol(df_P2)}"), name=LOGGER)
+  flog.info(head(df_P2), name=LOGGER)  
+  flog.info(summary(df_P2), name=LOGGER)  
+}
+
+# read the important dates csv file. This is needed because we would like to annotate this journey
+# so that we can say oh right there was an increase in weight for these days and it followed a birthday party, for example...
+if(!is.na(IMPORTANT_DATES_FNAME)) {
+  important_dates <- read_csv(IMPORTANT_DATES_FPATH)
+  flog.info(glue("read data for important dates from {IMPORTANT_DATES_FNAME},
+                  shape of dataframe={nrow(important_dates)}x{ncol(important_dates)}"), name=LOGGER)
+  flog.info(head(important_dates), name=LOGGER)  
+  flog.info(summary(important_dates), name=LOGGER)  
+}
+
+# combine the dataframes, we want to do a side by side analysis for both people
+if(!is.na(df_P2)) {
+  df <- bind_rows(df_P1, df_P2)
+  (df) %>%
+    sample_n(5)
+  flog.info(glue("combined data for {P1_NAME} and {P2_NAME}, shape of data is {nrow(df)}x{ncol(df)}"), name=LOGGER)
+} else {
+  flog.info(glue("only {P1_NAME} specified, only analyzing data for one person"), name=LOGGER)
+  df <- df_P1
+}
+
+# get the data in tidy format i.e. Each variable must have its own column.
+# Each observation must have its own row.
+# Each value must have its own cell.
+# see https://r4ds.had.co.nz/tidy-data.html
+flog.info("converting the data to tidy format", name=LOGGER)
+df_tidy <- df %>%
+  gather(metric, value, -Date, -name)
+df_tidy %>%
+  sample_n(5)
+flog.info(glue("shape of the tidy dataframe is {nrow(df_tidy)}x{ncol(df_tidy)}"), name=LOGGER)
+
+# determine the per day weight loss dataframe by
+# calculating loss as weight - the one previous value of weight
+# this is done by first grouping the dataframe by name since it has
+# data for two people and then arranging by date while maintaining
+# the grouping (NOTE: .by_group=TRUE)
+df_wt_loss <- df_tidy %>%
+  filter(metric=="Weight") %>%
+  select(name, Date, value) %>%
+  group_by(name) %>%
+  arrange(Date, .by_group=TRUE) %>%
+  mutate(loss_per_day = -1*(value-lag(value, 1)))  %>%
+  mutate(loss_per_day_7_day_ma=rollapply(loss_per_day, 7, mean,align='right',fill=NA))
+
+# is the curse of the weekend real? Assign the day to each date so that we can determine
+# if say the weight loss eventually after the weekend was very less or maybe not even there...
+df_wt_loss <- df_wt_loss %>%
+  mutate(day = weekdays(as.Date(Date)))
+
+# determine how much of theweight loss target has been achieved, this is done by finding the starting
+# weight (configured), target weight (configured) and seeing how far each person has reached based on
+# what their current weight is. This percentage is used to display a gauge (like the needle of a speedometer)
+p1_starting_weight <- df_tidy %>% filter(name==P1_NAME & metric=="Weight") %>% head(1) %>% pull(value)
+p1_latest_weight <- df_tidy %>% filter(name==P1_NAME & metric=="Weight") %>% tail(1) %>% pull(value)
+
+p2_starting_weight <- df_tidy %>% filter(name==P2_NAME & metric=="Weight") %>% head(1) %>% pull(value)
+p2_latest_weight <- df_tidy %>% filter(name==P2_NAME & metric=="Weight") %>% tail(1) %>% pull(value)
+
+p1_target_achieved_pct <- (p1_starting_weight-p1_latest_weight)/(p1_starting_weight-P1_TARGET_WEIGHT)*100
+p2_target_achieved_pct <- (p2_starting_weight-p2_latest_weight)/(p2_starting_weight-P2_TARGET_WEIGHT)*100
+
+
+# daily weight loss, this is important for a lot of charts and tables
+# not the use of group by (name) and then lag. The dataframe is already sorted
+# in asc order of time, so if the weight is reducing the daily_wt_loss would be a 
+# -ve number, for several charts and tables this is multiplied with -1 so provide
+# the absolute loss
+df_daily_wt_loss <- df_tidy %>%
+  filter(metric == "Weight") %>%
+  group_by(name) %>%
+  mutate(daily_wt_loss = value - lag(value))
+
+# how many days did it take for each pound to drop? This is found by finding the max date i.e. the last date
+# on which each weight (as a whole number, so 230, 229 etc) was seen and then subtracting that date from
+# the last date of the previous highest weight. So if 230 was say the 20th pound to drop (if we started from 250 say)
+# then the number of days between 231 and 230 becomes the number of days it took to lose the 20th pound.
+df_days_to_next_drop <- df_daily_wt_loss %>%
+  mutate(value = floor(value)) %>%
+  ungroup() %>%
+  group_by(name, value) %>%
+  summarize(Date=max(Date)) %>%
+  arrange(desc(Date)) %>%
+  mutate(value_diff=value-lag(value), days=abs(as.numeric(Date-lag(Date)))) %>%
+  replace_na(list(value_diff = 0, days = 0)) %>%
+  mutate(value=value-min(value)) %>%
+  filter(value != 0)
+```
+
+Summary
+=====================================  
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+  
+### How did we do? Just give me the easy plots.
+```{r}
+# plot some basic charts, since we have multiple metrics for each date
+# so a faceted timeseries would be useful.
+
+#########################################
+# NOTE: this applies to all the charts in this dashboard except the timeseries forecasts, so we follow certain
+# styling guidelines, these are: 
+# 1. Use the 538 theme (yes the one from fivethirtyeight.com)
+# 2. Use the tableau color scheme
+# 3. Use 20 point font size unless an exception is needed
+# 4. Title, subtitle and caption are all mandatory with the caption generally conveying the source of the data.
+#########################################
+
+renderPlot({
+  df_tidy %>%
+  ggplot(aes(x=Date, y=value, col=name)) +
+  geom_line() +
+  facet_wrap(~metric, scales = "free_y") + 
+  theme_fivethirtyeight() +
+  xlab("") +
+  labs(title=glue(MAIN_PAGE_CHART_TITLE),
+       subtitle=glue("Tracking weight and other biometrics, Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
+       caption=CAPTION) + 
+  theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE), legend.title = element_blank()) + 
+  scale_color_tableau()
+})
+```
+
+Column {data-width=200}
+-----------------------------------------------------------------------
+  
+### How much of our target have accomplished already?
+
+The following gauges show how much of their weight loss targets have `r P1_NAME` and `r P2_NAME` achieved till now.
+
+[]: # (The following code is a clever trick to display two gauges side by side, otherwise they display one below the 
+other which wastes precious real estate.)
+
+<div class = "row">
+<div class = "col-md-6">
+<center>
+```{r gauge, fig.width=2, fig.height=2}
+rate <- round(p2_target_achieved_pct, 2)
+gauge(rate, min = 0, max = 100, symbol = '%', label=P2_NAME,
+      gaugeSectors(success = SUCCESS_RANGE, warning = WARNING_RANGE, danger = DANGER_RANGE))
+```
+</center>
+</div>
+
+<div class = "col-md-6">
+<center>    
+```{r gauge2, fig.width=2, fig.height=2}
+rate <- round(p1_target_achieved_pct, 2)
+gauge(rate, min = 0, max = 100, symbol = '%', label=P1_NAME,
+      gaugeSectors(success = SUCCESS_RANGE, warning = WARNING_RANGE, danger = DANGER_RANGE))
+```    
+</center>
+</div>
+</div>
+
+
+###
+Important metrics that describe this journey.
+
+```{r}
+renderTable ({
+
+# we want to create a dataframe which contain multiple different metrics which can all
+# be displayed in one single table. We do this by creating a single row dataframe for each
+# metric of interest and then row binding (concatenating) each of these individual dataframes.
+  
+# starting weight. Since the weight loss dataframe is sorted
+# in asc order of the date so the first date for each group (name in this case)
+# is automatically the row that contains the starting weight. This way
+# we have a two row dataframe which we can spread to convert to a single row dataframe
+# such that the group i.e. name of person becomes a column name and then we add a new column
+# saying this is the metric that this single row dataframe is tracking. This same strategy
+# of using spread and adding a metric column is followed for all individual dataframes.
+df_starting_wt <- df_wt_loss %>%
+  mutate(rn=row_number()) %>%
+  filter(rn==1) %>%
+  mutate(value=as.character(value)) %>%
+  select(name, value) %>%
+  spread(name, value) %>%
+  mutate(Metric="Starting Weight (lb)") %>%
+  select(Metric, everything())
+
+# current weight dataframe  
+df_curr_wt <- df_wt_loss %>%
+  mutate(rn=row_number()) %>%
+  filter(rn==max(rn)) %>%
+  mutate(value=as.character(value)) %>%
+  select(name, value) %>%
+  spread(name, value) %>%
+  mutate(Metric="Current Weight (lb)") %>%
+  select(Metric, everything())
+
+# weight loss summary i.e. how much have we lost  
+df_wt_loss_summary <- df_wt_loss %>%
+  mutate(rn=row_number()) %>%
+  filter(rn==1 | rn==max(rn)) %>%
+  mutate(total_wt_loss = as.character(-1*(value-lag(value)))) %>%
+  drop_na() %>%
+  select(name, total_wt_loss) %>%
+  spread(name, total_wt_loss) %>%
+  mutate(Metric="Total weight loss (lb)") %>%
+  select(Metric, everything())
+
+# total duration  
+df_duration_summary <- df_wt_loss %>%
+  mutate(rn=row_number()) %>%
+  filter(rn==1 | rn==max(rn)) %>%
+  mutate(days_since_start = as.character((Date-lag(Date)))) %>%
+  drop_na() %>%
+  select(name, days_since_start) %>%
+  spread(name, days_since_start) %>%
+  mutate(Metric="Days since start") %>%
+  select(Metric, everything())
+
+# duration for losing the last 10 pounds
+df_days_for_last_n_pounds <- df_wt_loss %>%
+  arrange(desc(Date), .by_group=TRUE) %>%
+  filter(value >=min(value)+N_FOR_LAST_N_POUNDS_OF_INTREST | value==min(value)) %>%
+  mutate(rn=row_number()) %>%
+  filter(rn==min(rn) | rn==min(rn)+1) %>%
+  mutate(days_taken_to_lost_last_n_pounds = as.character(-1*(Date-lag(Date)))) %>%
+  drop_na() %>%
+  select(name, days_taken_to_lost_last_n_pounds) %>%
+  spread(name, days_taken_to_lost_last_n_pounds) %>%
+  mutate(Metric=glue("Days taken to lose last {N_FOR_LAST_N_POUNDS_OF_INTREST} pounds")) %>%
+  select(Metric, everything())
+
+
+# which month did we have the max weight loss (remember weight loss has already been converted to a positive value
+# so loss is +ve and gain is -ve at this point)
+df_best_wt_loss_month <- df_wt_loss %>%
+  mutate(m = MONTH_ABB[month(Date)]) %>%
+  group_by(name, m) %>%
+  summarize(total_wt_loss = sum(loss_per_day)) %>%
+  filter(total_wt_loss == max(total_wt_loss, na.rm=TRUE)) %>%
+  mutate(best_wt_loss_month = paste0(m, ", ", round(total_wt_loss, 2), " lb")) %>%
+  select(name, best_wt_loss_month) %>%
+  ungroup() %>%
+  spread(name,best_wt_loss_month) %>%
+  mutate(Metric="Best Weight loss month") %>%
+  select(Metric, everything())
+
+# join all the dataframes and display them in the table
+bind_rows(df_duration_summary,
+          df_days_for_last_n_pounds,
+          df_starting_wt,
+          df_curr_wt,
+          df_wt_loss_summary,
+          df_best_wt_loss_month)
+})
+```
+
+
+
+Analysis {data-orientation=rows}
+=====================================     
+   
+Row {data-height=500}
+-------------------------------------
+
+
+### Let us annotate the journey with important events
+
+Some events clearly cause the weight loss to slow down or speed up.
+
+```{r}
+renderPlot({
+  # We join the important events dataframe with the weight loss dataframe
+  # and display the timeseries as a faceted plot
+  df_tidy %>%
+  filter(metric=="Weight") %>%
+  left_join(important_dates ,
+            by=c("name","Date")) %>%
+  ggplot(aes(x=Date, y=value, col=name)) +
+  geom_line() +
+  facet_wrap(~name, scales = "free_y") + 
+  theme_fivethirtyeight() +
+  xlab("") +
+  labs(title=glue("The weight loss journey"),
+  subtitle=glue("Tracking weight along with important events, Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
+  caption=CAPTION) + 
+  theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE), legend.position="none") + 
+  theme(axis.title = element_text()) + ylab('Weight (pounds)') +
+  scale_color_tableau() + 
+  geom_label_repel(aes(label = label),
+                   nudge_y = -NUDGE_Y,
+                   nudge_x=-3*NUDGE_X,
+                   segment.size  = 0.3,
+                   arrow = arrow(length = unit(0.02, "npc"), type = "closed", ends = "last"),
+                   force = 10,
+                   na.rm = TRUE)
+})
+
+```
+
+Row {data-height=500}
+-------------------------------------
+   
+### Visualize how each pound was lost
+
+Was it easy to lose the first few pounds, was it much harder to lose the last few pounds? 
+```{r}
+renderPlot({
+  p <- df_days_to_next_drop %>%
+    ggplot(aes(x=value, y=days, col=name)) +
+    geom_line() +
+    geom_point() +
+    theme_fivethirtyeight() +
+    labs(title=glue("How many days did it take to lose the n'th pound?"),
+    subtitle=glue("Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
+    caption=CAPTION) + 
+    theme(axis.title = element_text()) + ylab('Days') + xlab("Pounds lost") +
+    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE), legend.position="bottom", legend.title = element_blank()) + 
+    scale_color_tableau()
+  p
+})
+```   
+    
+### Were some days of the week better than others in terms of weight loss?
+
+Is there a "curse of the weekend?" i.e. hardly any weight loss or even a weight gain on Monday or Tuesday following some indiscretions over the weekend?
+
+```{r}
+renderPlot({
+  
+  df_daily_wt_loss %>%
+  mutate(weekday = wday(Date, label = TRUE)) %>%
+  group_by(name, weekday) %>%
+  summarize(wt_loss = median(daily_wt_loss, na.rm=TRUE)) %>%
+  ggplot(aes(x=weekday, y=-1*wt_loss, fill=name, col=name)) +
+  geom_bar(position="dodge", stat="identity") +
+  facet_wrap(~name) + 
+  theme_fivethirtyeight() +
+  xlab("") + 
+  labs(title=glue("Daily weight loss"),
+       subtitle=glue("Median loss in weight on each day of the week, Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
+       caption=CAPTION) + 
+  theme(axis.title = element_text()) + ylab('Weight loss (lb)') +
+  theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE), legend.position = "none") + 
+  scale_fill_tableau() +
+  scale_color_tableau()
+})
+```
+
+Forecasts
+=====================================
+
+Inputs {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+Forecast parameters for `r P1_NAME`
+
+```{r}
+# the following user input elements help the user to tweak the inputs to the
+# forecast model. We use the Prophet library from Facebook AI Research for timeseries
+# forecasting. Please see https://facebook.github.io/prophet/docs/installation.html#r.
+
+# allow the user to select the duration of the forecast
+selectInput("forecast_range_in_days_p1",
+            "Forecast Range (days):",
+            FORECAST_DURATIONS,
+            selected=SELECTED_FORECAST_DURATION)
+
+# the forecast model requires an upper limit i.e. the weight could not have possibly gone beyond
+# this number. See https://facebook.github.io/prophet/docs/saturating_forecasts.html
+selectInput("weight_cap_p1",
+            "Max weight possible (lb):",
+            c(P1_WEIGHT_CAP))
+
+# requires a lower limit as well. Basically the forecast cannot continue in one direction inifinitely
+selectInput("weight_floor_p1",
+      "Min weight possible (lb):",
+      c(P1_WEIGHT_FLOOR))
+
+
+# slider for desired target weight. We allow it to be configurable between the current weight and
+# a configured minimum, in steps of 1 pound.
+sliderInput("target_wt_p1", "Target Weight (lb):",
+            min = as.integer(p1_starting_weight*FRACTION_FOR_MIN_WEIGHT),
+            max = p1_latest_weight,
+            value = P1_TARGET_WEIGHT,
+            step = WEIGHT_SLIDER_STEP_SIZE)
+```
+
+<br>
+
+Forecast parameters for `r P2_NAME`
+
+```{r}
+# the following user input elements help the user to tweak the inputs to the
+# forecast model. We use the Prophet library from Facebook AI Research for timeseries
+# forecasting. Please see https://facebook.github.io/prophet/docs/installation.html#r.
+
+# allow the user to select the duration of the forecast
+selectInput("forecast_range_in_days_p2",
+            "Forecast Range (days):",
+            FORECAST_DURATIONS,
+            selected=SELECTED_FORECAST_DURATION)
+
+# the forecast model requires an upper limit i.e. the weight could not have possibly gone beyond
+# this number. See https://facebook.github.io/prophet/docs/saturating_forecasts.html
+selectInput("weight_cap_p2",
+            "Max weight possible (lb):",
+            c(P2_WEIGHT_CAP))
+
+# requires a lower limit as well. Basically the forecast cannot continue in one direction inifinitely
+selectInput("weight_floor_p2",
+      "Min weight possible (lb):",
+      c(P2_WEIGHT_FLOOR))
+
+
+# slider for desired target weight. We allow it to be configurable between the current weight and
+# a configured minimum, in steps of 1 pound.
+sliderInput("target_wt_p2", "Target Weight (lb):",
+            min = as.integer(p2_starting_weight*FRACTION_FOR_MIN_WEIGHT),
+            max = p2_latest_weight,
+            value = P2_TARGET_WEIGHT,
+            step = WEIGHT_SLIDER_STEP_SIZE)
+```
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+  
+### Forecasts for `r P1_NAME`
+
+```{r}
+renderDygraph ({
+  # get the forecast for this person based on the configured parameters
+  forecast_wt_loss_timeseries(df_tidy,
+                              P1_NAME,
+                              P1_NAME_INITIAL,
+                              input$weight_cap_p1,
+                              input$weight_floor_p1,
+                              input$forecast_range_in_days_p1,
+                              input$target_wt_p1)
+})
+```
+
+### Forecasts for `r P2_NAME`
+
+```{r}
+renderDygraph ({
+  # get the forecast for this person based on the configured parameters
+  forecast_wt_loss_timeseries(df_tidy,
+                              P2_NAME,
+                              P2_NAME_INITIAL,
+                              input$weight_cap_p2,
+                              input$weight_floor_p2,
+                              input$forecast_range_in_days_p2,
+                              input$target_wt_p2)
+})
+```
+
+About
+=====================================
+
+The charts on the left represent the change in all the biometric markers we are tracking on a daily basis using a weighing scale which syncs to the phone via bluetooth and thus allows us to easily collect these numbers. We then download these numbers directly from their website and do the analysis here.
