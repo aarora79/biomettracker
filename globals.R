@@ -4,6 +4,7 @@
 APP_NAME <- "biometric_tracker"
 LOG_FILE <- file.path("/tmp", glue("{APP_NAME}.log"))
 LOGGER <- APP_NAME
+ABOUT_FILE <- "about.md"
 
 START_DATE <- "2020-02-17"
 DATA_DIR <- "data"

@@ -137,6 +137,9 @@ p2_latest_weight <- df_tidy %>% filter(name==P2_NAME & metric=="Weight") %>% tai
 
 p1_target_achieved_pct <- (p1_starting_weight-p1_latest_weight)/(p1_starting_weight-P1_TARGET_WEIGHT)*100
 p2_target_achieved_pct <- (p2_starting_weight-p2_latest_weight)/(p2_starting_weight-P2_TARGET_WEIGHT)*100
+flog.info(glue("p1_starting_weight={p1_starting_weight}, p1_latest_weight={p1_latest_weight},
+                p2_starting_weight={p2_starting_weight}, p2_latest_weight={p2_latest_weight},
+                p1_target_achieved_pct={p1_target_achieved_pct}, p2_target_achieved_pct={p2_target_achieved_pct}"), name=LOGGER)
 
 
 # daily weight loss, this is important for a lot of charts and tables
@@ -163,6 +166,7 @@ df_days_to_next_drop <- df_daily_wt_loss %>%
   replace_na(list(value_diff = 0, days = 0)) %>%
   mutate(value=value-min(value)) %>%
   filter(value != 0)
+flog.info("all done with the initial data read and wrangling", name=LOGGER)
 ```
 
 Summary
@@ -304,7 +308,6 @@ df_days_for_last_n_pounds <- df_wt_loss %>%
   mutate(Metric=glue("Days taken to lose last {N_FOR_LAST_N_POUNDS_OF_INTREST} pounds")) %>%
   select(Metric, everything())
 
-
 # which month did we have the max weight loss (remember weight loss has already been converted to a positive value
 # so loss is +ve and gain is -ve at this point)
 df_best_wt_loss_month <- df_wt_loss %>%
@@ -339,9 +342,7 @@ Row {data-height=500}
 
 
 ### Let us annotate the journey with important events
-
 Some events clearly cause the weight loss to slow down or speed up.
-
 ```{r}
 renderPlot({
   # We join the important events dataframe with the weight loss dataframe
@@ -376,7 +377,6 @@ Row {data-height=500}
 -------------------------------------
    
 ### Visualize how each pound was lost
-
 Was it easy to lose the first few pounds, was it much harder to lose the last few pounds? 
 ```{r}
 renderPlot({
@@ -396,9 +396,7 @@ renderPlot({
 ```   
     
 ### Were some days of the week better than others in terms of weight loss?
-
-Is there a "curse of the weekend?" i.e. hardly any weight loss or even a weight gain on Monday or Tuesday following some indiscretions over the weekend?
-
+Is there a "curse of the weekend?" i.e. no weight loss or even a weight gain on Monday or Tuesday following indiscretions over the weekend?
 ```{r}
 renderPlot({
   
@@ -534,4 +532,6 @@ renderDygraph ({
 About
 =====================================
 
-The charts on the left represent the change in all the biometric markers we are tracking on a daily basis using a weighing scale which syncs to the phone via bluetooth and thus allows us to easily collect these numbers. We then download these numbers directly from their website and do the analysis here.
+```{r}
+includeMarkdown(ABOUT_FILE)
+```
