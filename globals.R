@@ -26,6 +26,11 @@ P2_WEIGHT_FLOOR <- 180
 P1_DATA_FPATH <- file.path(DATA_DIR, glue("{P1_NAME}.csv"))
 P2_DATA_FPATH <- file.path(DATA_DIR, glue("{P2_NAME}.csv"))
 
+P1_TARGET_ACHIEVED_FPATH <- file.path(DATA_DIR, glue("target_achievement_{P1_NAME}.csv"))
+P2_TARGET_ACHIEVED_FPATH <- file.path(DATA_DIR, glue("target_achievement_{P2_NAME}.csv"))
+P1_FORECAST_FPATH <- file.path(DATA_DIR, glue("forecast_{P1_NAME}.csv"))
+P2_FORECAST_FPATH <- file.path(DATA_DIR, glue("forecast_{P2_NAME}.csv"))
+
 CAPTION <- "Source: Daily measurements done @home"
 MONTH_ABB <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
 

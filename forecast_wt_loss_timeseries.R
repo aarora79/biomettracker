@@ -39,6 +39,12 @@ forecast_wt_loss_timeseries <- function(df_tidy, pname, pname_initial, weight_ca
   
   # run the forecast
   forecast <- predict(m, future)
+  
+  # save this dataframe to local file for display in a version of this dashboard
+  # which just displays the results
+  write_csv(forecast %>%
+              left_join(m$history %>% select(ds, y), by="ds"),
+            file.path(DATA_DIR, glue("forecast_{pname}.csv")))
 
   # find the date on which the target will be achieved. This is done by keeping only the entries
   # where the yhat is <= target and then finding the first such entry
@@ -48,6 +54,8 @@ forecast_wt_loss_timeseries <- function(df_tidy, pname, pname_initial, weight_ca
     head(1) %>%
     mutate(ds = as.character(ds)) %>%
     pull(ds)
+  # also save the target achievement data to a csv file
+  write_csv(data.frame(date=target_achieved_date, target=weight_target), file.path(DATA_DIR, glue("target_achievement_{pname}.csv")))
   
   # all done, create an interactive plot object using dygraph. Use the first letter of the name as the
   # annotation symbol

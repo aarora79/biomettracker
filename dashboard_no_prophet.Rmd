@@ -7,17 +7,17 @@ output:
 runtime: shiny
 resource_files:
 - raw_data/*
+- data/*
 ---
   
 ```{r setup, include=FALSE}
+library(xts)
 library(zoo)
 library(glue)
 library(dplyr)
-library(rstan)
 library(tidyr)
 library(ggplot2)
 library(ggrepel)
-library(prophet)
 library(ggthemes)
 library(dygraphs)
 library(lubridate)
@@ -27,7 +27,6 @@ library(futile.logger)
 
 # load code from other files in this package
 source("globals.R")
-source("forecast_wt_loss_timeseries.R")
 
 # in this section of the code we will do all our data reading, cleaning, wrangling...basically
 # everything except the timeseries forecasting bit so that the rest of the sections simply display the 
@@ -169,6 +168,23 @@ df_days_to_next_drop <- df_daily_wt_loss %>%
   replace_na(list(value_diff = 0, days = 0)) %>%
   mutate(value=value-min(value)) %>%
   filter(value != 0)
+
+# read the precalculated forecasts and target achievement data 
+# this is needed because shinyapps.io does not support Prophet (in the sense there are errors in installing it)
+df_forecast_p1 <- read_csv(P1_FORECAST_FPATH) %>%
+            select(y, yhat, yhat_lower, yhat_upper, ds)
+# convert to xts as that is why dygraph likes
+df_forecast_p1 <- xts(df_forecast_p1 %>%
+                        select(-ds),
+                      order.by = df_forecast_p1$ds)
+df_target_achieved_p1 <- read_csv(P1_TARGET_ACHIEVED_FPATH)
+df_forecast_p2 <- read_csv(P2_FORECAST_FPATH) %>%
+            select(y, yhat, yhat_lower, yhat_upper, ds)
+df_forecast_p2 <- xts(df_forecast_p2 %>%
+                        select(-ds),
+                      order.by = df_forecast_p2$ds)
+df_target_achieved_p2 <- read_csv(P2_TARGET_ACHIEVED_FPATH)
+
 flog.info("all done with the initial data read and wrangling", name=LOGGER)
 ```
 
@@ -438,7 +454,7 @@ Forecast parameters for `r P1_NAME`
 # allow the user to select the duration of the forecast
 selectInput("forecast_range_in_days_p1",
             "Forecast Range (days):",
-            FORECAST_DURATIONS,
+            c(SELECTED_FORECAST_DURATION),
             selected=SELECTED_FORECAST_DURATION)
 
 # the forecast model requires an upper limit i.e. the weight could not have possibly gone beyond
@@ -452,14 +468,10 @@ selectInput("weight_floor_p1",
       "Min weight possible (lb):",
       c(P1_WEIGHT_FLOOR))
 
-
-# slider for desired target weight. We allow it to be configurable between the current weight and
-# a configured minimum, in steps of 1 pound.
-sliderInput("target_wt_p1", "Target Weight (lb):",
-            min = as.integer(p1_starting_weight*FRACTION_FOR_MIN_WEIGHT),
-            max = p1_latest_weight,
-            value = P1_TARGET_WEIGHT,
-            step = WEIGHT_SLIDER_STEP_SIZE)
+# input for the target weight
+selectInput("target_wt_p1",
+      "Target Weight (lb):",
+      c(P1_TARGET_WEIGHT))
 ```
 
 <br>
@@ -474,7 +486,7 @@ Forecast parameters for `r P2_NAME`
 # allow the user to select the duration of the forecast
 selectInput("forecast_range_in_days_p2",
             "Forecast Range (days):",
-            FORECAST_DURATIONS,
+            c(SELECTED_FORECAST_DURATION),
             selected=SELECTED_FORECAST_DURATION)
 
 # the forecast model requires an upper limit i.e. the weight could not have possibly gone beyond
@@ -488,14 +500,10 @@ selectInput("weight_floor_p2",
       "Min weight possible (lb):",
       c(P2_WEIGHT_FLOOR))
 
-
-# slider for desired target weight. We allow it to be configurable between the current weight and
-# a configured minimum, in steps of 1 pound.
-sliderInput("target_wt_p2", "Target Weight (lb):",
-            min = as.integer(p2_starting_weight*FRACTION_FOR_MIN_WEIGHT),
-            max = p2_latest_weight,
-            value = P2_TARGET_WEIGHT,
-            step = WEIGHT_SLIDER_STEP_SIZE)
+# input for the target weight
+selectInput("target_wt_p2",
+      "Target Weight (lb):",
+      c(P1_TARGET_WEIGHT))
 ```
 
 
@@ -506,14 +514,14 @@ Column {data-width=500}
 
 ```{r}
 renderDygraph ({
-  # get the forecast for this person based on the configured parameters
-  forecast_wt_loss_timeseries(df_tidy,
-                              P1_NAME,
-                              P1_NAME_INITIAL,
-                              input$weight_cap_p1,
-                              input$weight_floor_p1,
-                              input$forecast_range_in_days_p1,
-                              input$target_wt_p1)
+  # render the timeseries chart for the forecast using the precalculated data
+  dygraph(df_forecast_p1,
+          glue("Weight loss forecast for {P1_NAME}")) %>%
+    dySeries("y", label = "Actual") %>%
+    dySeries(c("yhat_lower", "yhat", "yhat_upper"), label = "Predicted") %>%
+    dyAnnotation(df_target_achieved_p1$date[1],
+             text = substr(P1_NAME, 1, 1),
+             tooltip = glue("Target: {df_target_achieved_p1$target[1]} lb, Expected date: {df_target_achieved_p1$date[1]}"))
 })
 ```
 
@@ -521,14 +529,15 @@ renderDygraph ({
 
 ```{r}
 renderDygraph ({
-  # get the forecast for this person based on the configured parameters
-  forecast_wt_loss_timeseries(df_tidy,
-                              P2_NAME,
-                              P2_NAME_INITIAL,
-                              input$weight_cap_p2,
-                              input$weight_floor_p2,
-                              input$forecast_range_in_days_p2,
-                              input$target_wt_p2)
+  # render the timeseries chart for the forecast using the precalculated data
+  dygraph(df_forecast_p2,
+          glue("Weight loss forecast for {P2_NAME}")) %>%
+    dySeries("y", label = "Actual") %>%
+    dySeries(c("yhat_lower", "yhat", "yhat_upper"), label = "Predicted") %>%
+    dyAnnotation(df_target_achieved_p2$date[1],
+                 text = substr(P2_NAME, 1, 1),
+                 tooltip = glue("Target: {df_target_achieved_p2$target[1]} lb, Expected date: {df_target_achieved_p2$date[1]}"))
+ 
 })
 ```
 
