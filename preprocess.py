@@ -56,7 +56,7 @@ def parse_args():
     # Common parameters for produce and consume sub-commands
     top_parser = argparse.ArgumentParser(add_help=True)
     top_parser.add_argument(
-        '--raw-data-filename',
+        '--raw-data-filepath',
         dest='raw_data_filename',
         type=str,
         required=True,
