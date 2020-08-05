@@ -12,4 +12,4 @@ Q3. How do you do the weight forecasting?
 Answer. The weight forecasting is done using an open source timeseries forecasting library called [*Prophet*](https://facebook.github.io/prophet/docs/installation.html#r), this is is provided by Facebook AI Research ([FAIR](https://github.com/facebookresearch)). We specifically use the saturating minimum model option in the logistic model provided by Prophet, see [this link](https://facebook.github.io/prophet/docs/saturating_forecasts.html#saturating-minimum).
 
 Q4. This is cool, i would like to reach out to the author, is there a website, email address?  
-Answer. Sure, you can reach out to me, Amit Arora at aa1603@georgetown.edu. You can also see my other work at https://ilivethedata.net.
+Answer. Sure, you can reach out to me, Amit Arora at aa1603@georgetown.edu. You can also see my other work at https://ilivethedata.net.  

@@ -61,6 +61,7 @@ flog.info(glue("params used:
 # read the raw data for person 1, print basic summary and metadata
 df_P1 <- read_csv(P1_DATA_FPATH) %>%
   mutate(name=P1_NAME) %>%
+  mutate(Date = ymd(Date)) %>%
   arrange(Date) %>%
   filter(Date >= START_DATE)
 flog.info(glue("read data for {P1_NAME} from {P1_DATA_FPATH}, shape of dataframe={nrow(df_P1)}x{ncol(df_P1)}"), name=LOGGER)
@@ -72,6 +73,7 @@ flog.info(summary(df_P1), name=LOGGER)
 if(!is.na(P2_NAME)) {
   df_P2 <- read_csv(P2_DATA_FPATH) %>%
     mutate(name=P2_NAME) %>%
+    mutate(Date = ymd(Date)) %>%
     arrange(Date) %>%
     filter(Date >= START_DATE)
   flog.info(glue("read data for {P2_NAME} from {P2_DATA_FPATH}, shape of dataframe={nrow(df_P2)}x{ncol(df_P2)}"), name=LOGGER)
@@ -106,7 +108,8 @@ if(!is.na(df_P2)) {
 # see https://r4ds.had.co.nz/tidy-data.html
 flog.info("converting the data to tidy format", name=LOGGER)
 df_tidy <- df %>%
-  gather(metric, value, -Date, -name)
+  gather(metric, value, -Date, -name) %>%
+  mutate(value=as.numeric(value))
 df_tidy %>%
   sample_n(5)
 flog.info(glue("shape of the tidy dataframe is {nrow(df_tidy)}x{ncol(df_tidy)}"), name=LOGGER)

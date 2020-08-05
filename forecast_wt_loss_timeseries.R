@@ -50,7 +50,7 @@ forecast_wt_loss_timeseries <- function(df_tidy, pname, pname_initial, weight_ca
   # where the yhat is <= target and then finding the first such entry
   target_achieved_date <- forecast %>%
     filter(yhat <= as.integer(weight_target)) %>%
-    arrange(desc(yhat)) %>%
+    arrange((ds)) %>%
     head(1) %>%
     mutate(ds = as.character(ds)) %>%
     pull(ds)

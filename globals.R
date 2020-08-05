@@ -50,8 +50,8 @@ MAIN_PAGE_CHART_TITLE <- "Journey to health"
 N_FOR_LAST_N_POUNDS_OF_INTREST <- 10
 
 # gauge
-SUCCESS_RANGE <- c(80, 100)
-WARNING_RANGE <- c(40, 79)
+SUCCESS_RANGE <- c(75, 100)
+WARNING_RANGE <- c(40, 74)
 DANGER_RANGE <- c(0, 39)
 
 # slider inputs
