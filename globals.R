@@ -36,12 +36,15 @@ MONTH_ABB <- c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "O
 
 # file containing dates and details for important events that could impact this analysis
 IMPORTANT_DATES_FNAME <- "important_dates.csv"
+IMPORTANT_DATES_MOBILE_FNAME <- "important_dates_mobile.csv"
 IMPORTANT_DATES_FPATH <- file.path(DATA_DIR, IMPORTANT_DATES_FNAME)
+IMPORTANT_DATES_MOBILE_FPATH <- file.path(DATA_DIR, IMPORTANT_DATES_MOBILE_FNAME)
 
 # charting related, how far should be the annoation from a point on the graph
 NUDGE_X <- 1
 NUDGE_Y <- 5
 CHART_ELEMENT_TEXT_SIZE <- 20
+CHART_ELEMENT_TEXT_SIZE_MOBILE <- 10
 
 MAIN_PAGE_CHART_TITLE <- "Journey to health"
 N_FOR_LAST_N_POUNDS_OF_INTREST <- 10
