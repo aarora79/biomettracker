@@ -590,10 +590,6 @@ renderDygraph ({
 About
 =====================================
 
-![](./gym.png)
-
-
-
 ```{r}
 includeMarkdown(ABOUT_FILE)
 ```

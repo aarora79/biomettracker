@@ -16,3 +16,5 @@ python preprocess.py  --raw-data-filepath raw_data/raw_data_nidhi.txt --output-f
 
 2. Run the dashboard.Rmd in RStudio, this will create the timeseries forecasts and store the results as CSV file in the data directory. Publish the dashboard_no_prophet.Rmd and dashboard_mobile.Rmd as Shiny applications to shinyapps.io (requires sign-up).
 
+![](https://raw.githubusercontent.com/aarora79/biomettracker/master/gym.png)
+
