@@ -1,0 +1,105 @@
+---
+title: "Biometric Tracker"
+output:
+  flexdashboard::flex_dashboard: null
+  orientation: columns
+  vertical_layout: fill
+runtime: shiny
+resource_files:
+- raw_data/*
+- data/*
+---
+  
+```{r setup, include=FALSE}
+library(flexdashboard)
+```
+
+Summary
+=====================================  
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+  
+### How did we do? Just give me the easy plots.
+```{r}
+```
+
+Column {data-width=200}
+-----------------------------------------------------------------------
+  
+### How much of our target have accomplished already?
+
+
+
+###
+
+```{r}
+```
+
+
+
+Analysis {data-orientation=rows}
+=====================================     
+   
+Row {data-height=500}
+-------------------------------------
+
+
+### Let us annotate the journey with important events
+Some events clearly cause the weight loss to slow down or speed up.
+```{r}
+
+```
+
+Row {data-height=500}
+-------------------------------------
+   
+### Visualize how each pound was lost
+Was it easy to lose the first few pounds, was it much harder to lose the last few pounds? 
+```{r}
+```   
+    
+### Were some days of the week better than others in terms of weight loss?
+Is there a "curse of the weekend?" i.e. no weight loss or even a weight gain on Monday or Tuesday following indiscretions over the weekend?
+```{r}
+```
+
+Forecasts
+=====================================
+
+Inputs {.sidebar data-width=300}
+-----------------------------------------------------------------------
+
+Forecast parameters for 
+
+```{r}
+```
+
+<br>
+
+Forecast parameters for 
+
+```{r}
+```
+
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+  
+### Forecasts for 
+
+```{r}
+```
+
+### Forecasts for 
+
+```{r}
+```
+
+About
+=====================================
+
+```{r}
+```
+
+
