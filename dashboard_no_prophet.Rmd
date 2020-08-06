@@ -545,7 +545,7 @@ selectInput("weight_floor_p2",
 # input for the target weight
 selectInput("target_wt_p2",
       "Target Weight (lb):",
-      c(P1_TARGET_WEIGHT))
+      c(P2_TARGET_WEIGHT))
 ```
 
 
