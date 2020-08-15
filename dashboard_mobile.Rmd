@@ -321,14 +321,32 @@ render_gt ({
     select(Metric, everything())
   
   # duration for losing the last 10 pounds
-  df_days_for_last_n_pounds <- df_wt_loss %>%
+  # this is a tricky one, trying to do everythingin a single dplyr pipeline
+  # what we do is as follows: calc the cumulative loss from the latest date
+  # and then assign a row number, the rn==1 corresponds to latest date so we
+  # want that entry, then we want to find the first entry for which cumul loss >= (say) 10 pounds
+  # so we use filter to keep either rn==1 or cumul_loss >= 10, but we only want to keep
+  # the first entry where cumul loss beame >=10 so we assign another
+  # row number and now we want to the first two rows and then take a diff of the two
+  # rows to get number of days. Best to run this outside of shiny to understand.
+  df_days_for_last_n_pounds <- df_tidy %>%
+    filter(metric=="Weight") %>%
+    select(name, Date, value) %>%
+    group_by(name) %>%
     arrange(desc(Date), .by_group=TRUE) %>%
-    filter(value >=min(value)+N_FOR_LAST_N_POUNDS_OF_INTREST | value==min(value)) %>%
+    mutate(loss_per_day = value-lag(value, 1)) %>%
+    drop_na() %>%
+    mutate(cumul_loss = cumsum(loss_per_day)) %>%
+    arrange(desc(Date)) %>%
     mutate(rn=row_number()) %>%
-    filter(rn==min(rn) | rn==min(rn)+1) %>%
+    filter(cumul_loss >= N_FOR_LAST_N_POUNDS_OF_INTREST | rn==1) %>%
+    mutate(rn2=row_number()) %>%
+    filter(rn==1 | rn2==2) %>%
+    select(name, Date) %>%
     mutate(days_taken_to_lost_last_n_pounds = as.character(-1*(Date-lag(Date)))) %>%
     drop_na() %>%
     select(name, days_taken_to_lost_last_n_pounds) %>%
+    ungroup() %>%
     spread(name, days_taken_to_lost_last_n_pounds) %>%
     mutate(Metric=glue("Days taken to lose last {N_FOR_LAST_N_POUNDS_OF_INTREST} pounds")) %>%
     select(Metric, everything())
