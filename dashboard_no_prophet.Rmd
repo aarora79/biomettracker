@@ -441,18 +441,26 @@ Row {data-height=500}
 Was it easy to lose the first few pounds, was it much harder to lose the last few pounds? 
 ```{r}
 renderPlot({
-  p <- df_days_to_next_drop %>%
-    ggplot(aes(x=value, y=days, col=name)) +
-    geom_line() +
-    geom_point() +
-    theme_fivethirtyeight() +
-    labs(title=glue("How many days did it take to lose the n'th pound?"),
-    subtitle=glue("Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
-    caption=CAPTION) + 
-    theme(axis.title = element_text()) + ylab('Days') + xlab("Pounds lost") +
-    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE), legend.position="bottom", legend.title = element_blank()) + 
-    scale_color_tableau()
-  p
+  df_tidy %>%
+  filter(metric=='Weight') %>%
+  select(-metric, -Date) %>%
+  mutate(value = as.integer((value))) %>%
+  group_by(name, value) %>%
+  count(value) %>%
+  arrange(value) %>%
+  ggplot(aes(x=reorder(value, -value), y=n, col=name, fill=name)) +
+  geom_bar(stat="identity") +
+  facet_wrap(~name, ncol=1, scales = "free") +
+  theme_fivethirtyeight() +
+  xlab("") +
+  labs(title=glue(MAIN_PAGE_CHART_TITLE),
+       subtitle=glue("Tracking weight and other biometrics, Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
+       caption=CAPTION) + 
+  theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE-5), legend.position = "none") + 
+  scale_color_tableau() + 
+  scale_fill_tableau() + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+
 })
 ```   
     
