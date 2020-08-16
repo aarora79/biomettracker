@@ -6,6 +6,46 @@ Lean Mass
 Muscle Percentage
 Water Percentage
 Action
+2020/08/15
+206.57 lbs
+31.3
+30.1 %
+144.39 lbs
+38.0 %
+51.0 %
+Edit | Delete
+2020/08/14
+207.23 lbs
+31.4
+30.2 %
+144.65 lbs
+38.0 %
+51.0 %
+Edit | Delete
+2020/08/13
+207.23 lbs
+31.4
+30.2 %
+144.65 lbs
+38.0 %
+51.0 %
+Edit | Delete
+2020/08/12
+206.79 lbs
+31.3
+30.1 %
+144.55 lbs
+38.0 %
+51.0 %
+Edit | Delete
+2020/08/11
+207.45 lbs
+31.4
+30.2 %
+144.8 lbs
+38.0 %
+50.9 %
+Edit | Delete
 2020/08/10
 208.12 lbs
 31.5
@@ -766,6 +806,14 @@ Edit | Delete
 37.0 %
 49.2 %
 Edit | Delete
+Date
+Weight
+BMI
+Body Fat
+Lean Mass
+Muscle Percentage
+Water Percentage
+Action
 2020/05/16
 224.65 lbs
 34.0
