@@ -441,44 +441,88 @@ Row {data-height=700}
 Was it easy to lose the first few pounds, was it much harder to lose the last few pounds? 
 ```{r}
 renderPlot({
-  p <- df_days_to_next_drop %>%
-    ggplot(aes(x=value, y=days, col=name)) +
-    geom_line() +
-    geom_point() +
+  # number of days spent at each weight, these could be in any order, we are just counting
+  # the total number of days at a weight.
+  df_days_at_a_weight <- df_tidy %>%
+    filter(metric=='Weight') %>%
+    select(-metric, -Date) %>%
+    mutate(value = as.integer((value))) %>%
+    group_by(name, value) %>%
+    count(value)
+  
+  # median number of days each person stays at a weight
+  df_days_at_a_weight_median <- df_days_at_a_weight %>%
+    ungroup() %>%
+    group_by(name) %>%
+    summarize(median_num_of_days_at_weight = as.integer(median(n)))
+  
+  number_of_days_at_wt_p1 <- df_days_at_a_weight_median %>% filter(name == P1_NAME) %>% pull(median_num_of_days_at_weight)
+  number_of_days_at_wt_p2 <- df_days_at_a_weight_median %>% filter(name == P2_NAME) %>% pull(median_num_of_days_at_weight)
+
+  df_tidy %>%
+    filter(metric=='Weight') %>%
+    select(-metric, -Date) %>%
+    mutate(value = as.integer((value))) %>%
+    group_by(name, value) %>%
+    count(value) %>%
+    arrange(value) %>%
+    ggplot(aes(x=reorder(value, -value), y=n, col=name, fill=name)) +
+    geom_bar(stat="identity") +
+    facet_wrap(~name, ncol=1, scales = "free") +
     theme_fivethirtyeight() +
-    labs(title=glue("How many days did it take to lose the n'th pound?"),
-    subtitle=glue("Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
-    caption=CAPTION) + 
-    theme(axis.title = element_text()) + ylab('Days') + xlab("Pounds lost") +
-    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE_MOBILE), legend.position="bottom", legend.title = element_blank()) + 
-    scale_color_tableau()
-  p
+    xlab("Weight (lb)") +
+    labs(title=glue(HOW_EACH_POUND_WAS_LOST_TITLE),
+         subtitle=glue("On average, {P1_NAME} spends {number_of_days_at_wt_p1} days at a weight, {P2_NAME} spends {number_of_days_at_wt_p2} days. Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
+         caption=CAPTION) + 
+    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE_MOBILE), legend.position = "none") + 
+    scale_color_tableau() + 
+    scale_fill_tableau() + 
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+    theme(axis.title = element_text()) +  ylab("Number of days at this weight")
+
 })
 ```   
     
-### Were some days of the week better than others in terms of weight loss?
-Is there a "curse of the weekend?" i.e. no weight loss or even a weight gain on Monday or Tuesday following indiscretions over the weekend?
+### Deadlift is a good excercise
+`r P2_NAME` is now able to lift more than body weight.
+
 ```{r}
 renderPlot({
+  df_p2_deadlifts <- read_csv(P2_DEADLIFT_FILE_PATH)
+
+  df_p2_deadlifts_tidy <- df_p2_deadlifts %>%
+    filter(excercise == "deadlift") %>%
+    select(date, weight) %>%
+    rename(Date=date, value=weight) %>%
+    mutate(metric="deadlift") %>%
+    mutate(Date=as.Date(Date)) %>%
+    group_by(Date) %>%
+    filter(value==max(value))
   
-  df_daily_wt_loss %>%
-  mutate(weekday = wday(Date, label = TRUE)) %>%
-  group_by(name, weekday) %>%
-  summarize(wt_loss = median(daily_wt_loss, na.rm=TRUE)) %>%
-  ggplot(aes(x=weekday, y=-1*wt_loss, fill=name, col=name)) +
-  geom_bar(position="dodge", stat="identity") +
-  # facet_wrap(~name) + 
-  theme_fivethirtyeight() +
-  xlab("") + 
-  labs(title=glue("Median weight loss by day of week"),
-       subtitle=glue("Timespan: {min(df_tidy$Date)} to {max(df_tidy$Date)}"),
-       caption=CAPTION) + 
-  theme(axis.title = element_text()) + ylab('Weight loss (lb)') +
-  theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE_MOBILE), legend.position = "bottom") + 
-  scale_fill_tableau() +
-  scale_color_tableau()
+  dt_of_max_deadlift = df_p2_deadlifts_tidy %>% ungroup() %>% filter(value==max(value)) %>% pull(Date)
+  dt_of_min_deadlift = df_p2_deadlifts_tidy %>% ungroup() %>% filter(value==min(value)) %>% pull(Date)
+  total_num_days <- dt_of_max_deadlift - dt_of_min_deadlift
+  
+  df_deadlift_and_p2_body_weight <- df_tidy %>%
+    filter(metric=='Weight' & name==P2_NAME) %>%
+    select(metric, Date, value) %>%
+    bind_rows(df_p2_deadlifts_tidy)
+  
+  df_deadlift_and_p2_body_weight %>%
+    ggplot(aes(x=Date, y=value, col=metric)) +
+    geom_line() +
+    geom_point() +
+    theme_fivethirtyeight() +
+    xlab("Weight (lb)") +
+    labs(title=glue("{P2_NAME}'s journey to deadlifting more than body wt."),
+         subtitle=glue("Took a total of {total_num_days} days"),
+         caption=CAPTION) + 
+    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE_MOBILE), legend.position = "none") + 
+    scale_color_tableau()
+
 })
 ```
+
 
 Forecasts
 =====================================
