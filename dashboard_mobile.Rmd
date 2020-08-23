@@ -192,6 +192,12 @@ df_forecast_p2 <- xts(df_forecast_p2 %>%
                       order.by = df_forecast_p2$ds)
 df_target_achieved_p2 <- read_csv(P2_TARGET_ACHIEVED_FPATH)
 
+
+# read body measurements file
+df_measurements <- read_csv(MEASUREMENTS_FPATH)
+df_measurements <- df_measurements %>%
+  filter(measurement %in% MEASUREMENTS_TO_KEEP)
+
 flog.info("all done with the initial data read and wrangling", name=LOGGER)
 ```
 
@@ -563,6 +569,31 @@ renderDygraph ({
                  tooltip = glue("Target: {df_target_achieved_p2$target[1]} lb, Expected date: {df_target_achieved_p2$date[1]}"))
  
 })
+```
+
+More
+=====================================  
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+  
+### How did different body measurements change over time
+```{r}
+renderPlot({
+  df_measurements %>%
+    ggplot(aes(x=date, y=value, col=name)) +
+    geom_line() + 
+    geom_point(show.legend = FALSE) + 
+    geom_text(aes(label = paste0("(", value, ")")), nudge_y = -0.015*df_measurements$value, show.legend = FALSE) + 
+    labs(title="Changes in body measurements with diet and excercise",
+         subtitle=glue("All measurements in inches. Timespan: {min(df_measurements$date)} to {max(df_measurements$date)}"),
+         caption="Data Source: measurements done @home") +
+    facet_wrap(~measurement, scales="free") +
+    theme_fivethirtyeight() + 
+    scale_color_tableau() + 
+    theme(legend.title = element_blank())
+})
+
 ```
 
 About

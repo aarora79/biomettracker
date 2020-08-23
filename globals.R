@@ -9,6 +9,8 @@ ABOUT_FILE <- "about.md"
 START_DATE <- "2020-02-17"
 DATA_DIR <- "data"
 RAW_DATA_DIR <- "raw_data"
+MEASUREMENTS_TO_KEEP <- c("Neck", "Waist", "Hips", "Biceps", "Thighs")
+MEASUREMENTS_FPATH <- file.path(RAW_DATA_DIR, "measurements.csv")
 
 # person 1 and 2 details
 P1_NAME <- "Nidhi"
