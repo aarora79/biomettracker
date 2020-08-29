@@ -637,6 +637,43 @@ renderDygraph ({
 })
 ```
 
+Weekly
+=====================================
+
+```{r}
+renderPlot({
+  df_weekly_weight <- df_daily_wt_loss %>%
+  mutate(week=week(Date)-week(min(df_daily_wt_loss$Date))+1)
+
+
+df_plateau2 <- read_csv("data/weight_loss_plateus.csv")
+
+
+  
+df_weekly_weight %>%
+  ggplot(aes(x=as.factor(week), value, col=name)) +
+  geom_boxplot() +
+  geom_rect(data=df_plateau2, aes(x = NULL,y = NULL,xmin=week_start, xmax=week_end, 
+                                  ymin=-Inf, ymax=Inf, 
+                                  alpha=0.05,fill=name, col=name)) +
+  labs(title="Boxplot for weekly weight trend",
+       subtitle="Shaded regions represent weeks where weight loss plateaued. The line in the center of each box represents the median weight in that week.",
+       caption="Data Source: data collected at home") +
+  facet_wrap(~name, scales="free") +
+  theme_fivethirtyeight() + 
+  scale_color_tableau() +
+  scale_fill_tableau() +
+  theme(legend.title = element_blank(), legend.position = "none",
+        text = element_text(size=CHART_ELEMENT_TEXT_SIZE-5)) +
+  theme(axis.title = element_text()) + 
+  xlab("Weeks since start of training") + 
+  ylab("Weight (lb)")
+# 
+
+
+})
+```
+
 More
 =====================================  
 
@@ -657,7 +694,7 @@ renderPlot({
     facet_wrap(~measurement, scales="free") +
     theme_fivethirtyeight() + 
     scale_color_tableau() + 
-    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE), legend.title = element_blank())
+    theme(text = element_text(size=CHART_ELEMENT_TEXT_SIZE-5), legend.title = element_blank())
 })
 
 ```
@@ -710,7 +747,7 @@ p <- df_dl %>%
        subtitle=glue("Journey from deadlifting {min(df_dl$weight)} lb to {max(df_dl$weight)} lb in {time_duration_in_weeks} weeks"),
        caption="Explanation: BoxPlot representation of reps done. Line in the middle of the each box is the median weight deadlifted that day.") +
   theme_fivethirtyeight() + 
-  scale_fill_gradient_tableau(palette="Classic Orange") + 
+  scale_fill_gradient_tableau(palette="Blue") + 
   theme(legend.title = element_blank(), legend.position = "none",
         text = element_text(size=CHART_ELEMENT_TEXT_SIZE-5))
 p
