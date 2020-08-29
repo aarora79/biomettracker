@@ -662,6 +662,61 @@ renderPlot({
 
 ```
 
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Deadlifts over time
+```{r}
+renderPlot({
+  P2_DEADLIFT_TARGET_WEIGHT <- 300
+df <- read_csv("raw_data/Amit_deadlifts.csv")
+
+
+df_dl <- df %>%
+  filter(excercise == "deadlift") %>%
+  select(-set)
+
+df_dl <- as.data.frame(lapply(df_dl, rep, df_dl$reps)) %>%
+  mutate(date=as.Date(date)) %>%
+  group_by(date) %>%
+  mutate(median_deadlift_wt = median(weight))
+
+df_dl_median <- as.data.frame(lapply(df_dl, rep, df_dl$reps)) %>%
+  mutate(date=as.Date(date)) %>%
+  group_by(date) %>%
+  summarize(median_deadlift_wt = median(weight))
+
+time_duration_in_weeks <- ceiling(as.numeric(difftime(max(df_dl$date), min(df_dl$date), units="weeks")))
+df2 <- df_wt_loss %>% ungroup() %>% filter(name=="Amit") %>% select(Date, value) %>% rename(date=Date) %>% mutate(median_deadlift_wt=200)
+df2 <- df2 %>%
+  mutate(label=ifelse(date==min(date), glue("Body weight. (lb)"), NA)) %>%
+  rename(weight=value)
+
+# Body weight at start: 
+p <- df_dl %>%
+  ggplot(aes(x=date, group=date, weight, fill=median_deadlift_wt)) +
+  geom_boxplot() +
+  geom_point(data=df2, aes(x=date, y=weight, col=I("purple")), size=0.7, show.legend = TRUE) + 
+  # geom_point(data=df_dl_median, aes(x=date, y=median_deadlift_wt), size=0.7, show.legend = TRUE) + 
+  geom_text(data=df2, aes(label = label, size=2),
+                   nudge_y = 1.25*NUDGE_Y,
+                   nudge_x=2*NUDGE_X,
+                   na.rm = TRUE, col=I("black")) +
+  geom_hline(yintercept = P2_DEADLIFT_TARGET_WEIGHT, colour="#990000", linetype="dashed") +
+  geom_text(aes(max(df_dl$date) - 15, P2_DEADLIFT_TARGET_WEIGHT, label = "300 lb, target for 2020", vjust = -1), family="NimbusRom", fontface="plain", size=4) +
+  scale_y_continuous(breaks = seq(0, P2_DEADLIFT_TARGET_WEIGHT+25, by = 50)) + 
+  scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  labs(title="What does'nt kill you makes you stronger...",
+       subtitle=glue("Journey from deadlifting {min(df_dl$weight)} lb to {max(df_dl$weight)} lb in {time_duration_in_weeks} weeks"),
+       caption="Explanation: BoxPlot representation of reps done. Line in the middle of the each box is the median weight deadlifted that day.") +
+  theme_fivethirtyeight() + 
+  scale_fill_gradient_tableau(palette="Classic Orange") + 
+  theme(legend.title = element_blank(), legend.position = "none",
+        text = element_text(size=CHART_ELEMENT_TEXT_SIZE-5))
+p
+
+})
+```
 About
 =====================================
 
