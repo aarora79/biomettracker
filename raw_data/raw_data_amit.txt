@@ -6,6 +6,7 @@ Lean Mass
 Muscle Percentage
 Water Percentage
 Action
+2020/09/08
 203.49 lbs
 30.8
 29.6 %
