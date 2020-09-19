@@ -6,6 +6,30 @@ Lean Mass
 Muscle Percentage
 Water Percentage
 Action
+Date
+Weight
+BMI
+Body Fat
+Lean Mass
+Muscle Percentage
+Water Percentage
+Action
+2020/09/19
+130.73 lbs
+24.1
+27.4 %
+94.91 lbs
+33.2 %
+53.0 %
+Edit | Delete
+2020/09/18
+130.95 lbs
+24.1
+27.5 %
+94.94 lbs
+33.2 %
+53.0 %
+Edit | Delete
 2020/09/17
 203.04 lbs
 30.8
