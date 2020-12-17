@@ -6,6 +6,38 @@ Lean Mass
 Muscle Percentage
 Water Percentage
 Action
+2020/12/16
+135.14 lbs
+24.9
+28.5 %
+96.63 lbs
+32.9 %
+52.2 %
+Edit | Delete
+2020/12/15
+134.26 lbs
+24.7
+28.4 %
+96.13 lbs
+33.0 %
+52.3 %
+Edit | Delete
+2020/12/14
+135.58 lbs
+24.9
+28.6 %
+96.81 lbs
+32.9 %
+52.1 %
+Edit | Delete
+2020/12/13
+135.14 lbs
+24.9
+28.5 %
+96.63 lbs
+32.9 %
+52.2 %
+Edit | Delete
 2020/12/12
 134.48 lbs
 24.7
