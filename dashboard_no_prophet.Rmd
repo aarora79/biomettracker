@@ -665,7 +665,9 @@ Weekly
 ```{r}
 renderPlot({
   df_weekly_weight <- df_daily_wt_loss %>%
-  mutate(week=week(Date)-week(min(df_daily_wt_loss$Date))+1)
+    mutate(week=as.integer(difftime(Date, min(df_daily_wt_loss$Date), units="week")))
+
+  #mutate(week=week(Date)-week(min(df_daily_wt_loss$Date))+1)
 
 
 df_plateau2 <- read_csv("data/weight_loss_plateus.csv")
@@ -674,15 +676,15 @@ df_plateau2 <- read_csv("data/weight_loss_plateus.csv")
   
 df_weekly_weight %>%
   ggplot(aes(x=as.factor(week), value, col=name)) +
-  geom_boxplot() +
-  geom_rect(data=df_plateau2, aes(x = NULL,y = NULL,xmin=week_start, xmax=week_end, 
-                                  ymin=-Inf, ymax=Inf, 
-                                  alpha=0.05,fill=name, col=name)) +
+  geom_tufteboxplot(size=1) +
+  #geom_rect(data=df_plateau2, aes(x = NULL,y = NULL,xmin=week_start, xmax=week_end, 
+  #                                ymin=-Inf, ymax=Inf, 
+  #                                alpha=0.05,fill=name, col=name)) +
   labs(title="Boxplot for weekly weight trend",
-       subtitle="Shaded regions represent weeks where weight loss plateaued. The line in the center of each box represents the median weight in that week.",
+       subtitle="The point in the center represents the median weight in that week.",
        caption="Data Source: data collected at home") +
   facet_wrap(~name, scales="free") +
-  theme_fivethirtyeight() + 
+  theme_fivethirtyeight() +
   scale_color_tableau() +
   scale_fill_tableau() +
   theme(legend.title = element_blank(), legend.position = "none",
@@ -759,10 +761,10 @@ p <- df_dl %>%
   # geom_point(data=df_dl_median, aes(x=date, y=median_deadlift_wt), size=0.7, show.legend = TRUE) + 
   geom_text(data=df2, aes(label = label, size=2),
                    nudge_y = 1.25*NUDGE_Y,
-                   nudge_x=2*NUDGE_X,
+                   nudge_x=4*NUDGE_X,
                    na.rm = TRUE, col=I("black")) +
   geom_hline(yintercept = P2_DEADLIFT_TARGET_WEIGHT, colour="#990000", linetype="dashed") +
-  geom_text(aes(max(df_dl$date) - 15, P2_DEADLIFT_TARGET_WEIGHT, label = "300 lb, target for 2020", vjust = -1), family="NimbusRom", fontface="plain", size=4) +
+  geom_text(aes(min(df_dl$date) + 15, P2_DEADLIFT_TARGET_WEIGHT, label = "300 lb, target for 2020", vjust = -1), family="NimbusRom", fontface="plain", size=4) +
   scale_y_continuous(breaks = seq(0, P2_DEADLIFT_TARGET_WEIGHT+25, by = 50)) + 
   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
   labs(title="What does'nt kill you makes you stronger...",

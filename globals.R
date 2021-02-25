@@ -45,7 +45,7 @@ IMPORTANT_DATES_MOBILE_FPATH <- file.path(DATA_DIR, IMPORTANT_DATES_MOBILE_FNAME
 P2_DEADLIFT_FILE_PATH <- file.path(RAW_DATA_DIR, glue("{P2_NAME}_deadlifts.csv"))
 
 # charting related, how far should be the annoation from a point on the graph
-NUDGE_X <- 1
+NUDGE_X <- 2
 NUDGE_Y <- 5
 CHART_ELEMENT_TEXT_SIZE <- 20
 CHART_ELEMENT_TEXT_SIZE_MOBILE <- 10
