@@ -40,11 +40,11 @@ Edit | Delete
 Edit | Delete
 2021/03/13
 193.6 lbs
-29.3
--
-193.6 lbs
--
--
+29.5
+28.1 %
+139.97 lbs
+38.8 %
+52.5 %
 Edit | Delete
 2021/03/12
 194.89 lbs
@@ -181,6 +181,7 @@ Edit | Delete
 140.37 lbs
 38.7 %
 52.3 %
+Edit | Delete
 2021/02/24
 195.33 lbs
 29.6
