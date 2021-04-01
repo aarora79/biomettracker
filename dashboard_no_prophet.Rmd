@@ -63,6 +63,7 @@ flog.info(glue("params used:
 # read the raw data for person 1, print basic summary and metadata
 df_P1 <- read_csv(P1_DATA_FPATH) %>%
   mutate(name=P1_NAME) %>%
+  mutate(Weight=as.numeric(Weight)) %>%
   arrange(Date) %>%
   mutate(Date=ymd(Date)) %>%
   filter(Date >= START_DATE)
@@ -75,6 +76,7 @@ flog.info(summary(df_P1), name=LOGGER)
 if(!is.na(P2_NAME)) {
   df_P2 <- read_csv(P2_DATA_FPATH) %>%
     mutate(name=P2_NAME) %>%
+    mutate(Weight=as.numeric(Weight)) %>%
     arrange(Date) %>%
     mutate(Date=ymd(Date)) %>%
     filter(Date >= START_DATE)
