@@ -12,10 +12,10 @@ date,hour,energy_level,hunger,headache,drink1,drink2,drink3,workout,sleepy,notes
 2021-07-24,7,,,,,,,,,
 2021-07-24,8,,,,,,,,,
 2021-07-24,9,,,,,,,,,
-2021-07-24,10,normal energy level,not hungry at all,no headache,water,,,,,stuffy nose
-2021-07-24,11,normal energy level,somewhat hungry,no headache,water,,,,,
-2021-07-24,12,normal energy level,somewhat hungry,no headache,water,caffeine free hot tea,,,,
-2021-07-24,13,low energy level,not hungry at all,no headache,caffeine free hot tea,,,,,
+2021-07-24,10,normal energy level,not hungry at all,no headache,water,,,,not sleepy at all,stuffy nose
+2021-07-24,11,normal energy level,somewhat hungry,no headache,water,,,,not sleepy at all,
+2021-07-24,12,normal energy level,somewhat hungry,no headache,water,caffeine free hot tea,,,not sleepy at all,
+2021-07-24,13,low energy level,not hungry at all,no headache,caffeine free hot tea,,,,not sleepy at all,
 2021-07-24,14,low energy level,not hungry at all,mild headache,water,,,,somewhat sleepy,not hungry but missing food
 2021-07-24,15,low energy level,not hungry at all,no headache,water,,,,very sleepy,Slept 
 2021-07-24,16,normal energy level,not hungry at all,no headache,,,,,very sleepy,Slept
@@ -40,14 +40,14 @@ date,hour,energy_level,hunger,headache,drink1,drink2,drink3,workout,sleepy,notes
 2021-07-25,11,normal energy level,extremely hungry,mild headache,water,,,,somewhat sleepy,was standing for last few hours in the swim meet
 2021-07-25,12,normal energy level,somewhat hungry,no headache,,,,,not sleepy at all,
 2021-07-25,13,normal energy level,somewhat hungry,no headache,,,,,not sleepy at all,
-2021-07-25,14,normal energy level,not hungry at all,no headache,,,,,,
-2021-07-25,15,normal energy level,not hungry at all,no headache,,,,,,
-2021-07-25,16,normal energy level,not hungry at all,no headache,,,,,,
+2021-07-25,14,normal energy level,not hungry at all,no headache,,,,,not sleepy at all,
+2021-07-25,15,normal energy level,not hungry at all,no headache,,,,,not sleepy at all,
+2021-07-25,16,normal energy level,not hungry at all,no headache,,,,,not sleepy at all,
 2021-07-25,17,low energy level,somewhat hungry,no headache,,,,,not sleepy at all,
 2021-07-25,18,low energy level,not hungry at all,no headache,,,,,somewhat sleepy,
 2021-07-25,19,normal energy level,not hungry at all,no headache,water,,,,not sleepy at all,
-2021-07-25,20,normal energy level,not hungry at all,no headache,caffeine free hot tea,water,,,,
-2021-07-25,21,normal energy level,not hungry at all,no headache,water,,,,,
+2021-07-25,20,normal energy level,not hungry at all,no headache,caffeine free hot tea,water,,,not sleepy at all,
+2021-07-25,21,normal energy level,not hungry at all,no headache,water,,,,not sleepy at all,
 2021-07-25,22,normal energy level,somewhat hungry,no headache,,,,,somewhat sleepy,
 2021-07-25,23,normal energy level,somewhat hungry,mild headache,water,,,,very sleepy,
 2021-07-26,0,,,,,,,,,
