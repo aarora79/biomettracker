@@ -25,7 +25,7 @@ date,hour,energy_level,hunger,headache,drink1,drink2,drink3,workout,sleepy,notes
 2021-07-24,20,normal energy level,somewhat hungry,no headache,water,,,,not sleepy at all,
 2021-07-24,21,low energy level,not hungry at all,no headache,water,,,,not sleepy at all,
 2021-07-24,22,normal energy level,not hungry at all,no headache,water,,,,very sleepy,
-2021-07-24,23,normal energy level,not hungry but want to eat,no headache,water,,,,very sleepy,
+2021-07-24,23,normal energy level,not hungry at all,no headache,water,,,,very sleepy,
 2021-07-25,0,,,,,,,,,
 2021-07-25,1,,,,,,,,,
 2021-07-25,2,,,,,,,,,
@@ -35,7 +35,7 @@ date,hour,energy_level,hunger,headache,drink1,drink2,drink3,workout,sleepy,notes
 2021-07-25,6,normal energy level,not hungry at all,no headache,water,,,,somewhat sleepy,
 2021-07-25,7,normal energy level,not hungry at all,no headache,,,,,not sleepy at all,at the pool
 2021-07-25,8,normal energy level,somewhat hungry,no headache,,,,,not sleepy at all,at the pool
-2021-07-25,9,normal energy level,not hungry but want to eat,no headache,tea with almond milk,,,,not sleepy at all,at the pool
+2021-07-25,9,normal energy level,not hungry at all,no headache,tea with almond milk,,,,not sleepy at all,at the pool
 2021-07-25,10,normal energy level,not hungry at all,no headache,water,,,,not sleepy at all,at the pool
 2021-07-25,11,normal energy level,extremely hungry,mild headache,water,,,,somewhat sleepy,was standing for last few hours in the swim meet
 2021-07-25,12,normal energy level,somewhat hungry,no headache,,,,,not sleepy at all,
