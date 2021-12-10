@@ -1,4 +1,36 @@
 date,excercise,set,reps,weight
+2021-12-8,deadlift,1,5,245
+2021-12-8,deadlift,2,5,265
+2021-12-8,deadlift,3,3,285
+2021-12-8,deadlift,4,3,305
+2021-12-8,deadlift,4,1,325
+2021-12-8,deadlift,4,1,335
+
+2021-12-1,deadlift & carry,1,3,235
+2021-12-1,deadlift & carry,2,3,245
+2021-12-1,deadlift & carry,3,3,250
+2021-12-1,deadlift & carry,4,3,250
+2021-12-1,deadlift & carry,4,3,250
+2021-12-1,deadlift & carry,4,3,250
+
+2021-11-24,deadlift,1,3,255
+2021-11-24,deadlift,2,3,275
+2021-11-24,deadlift,3,3,295
+2021-11-24,deadlift,4,3,305
+2021-11-24,deadlift,4,2,325
+2021-11-24,deadlift,4,2,335
+2021-11-24,deadlift,4,1,355
+2021-11-24,deadlift,4,1,365
+
+2021-11-17,deadlift,1,3,245
+2021-11-17,deadlift,2,3,265
+2021-11-17,deadlift,3,3,285
+2021-11-17,deadlift,4,3,305
+2021-11-17,deadlift,4,2,315
+2021-11-17,deadlift,4,2,325
+2021-11-17,deadlift,4,1,345
+2021-11-17,deadlift,4,1,350
+
 2021-10-6,deadlift,1,5,235
 2021-10-6,deadlift,2,5,245
 2021-10-6,deadlift,3,5,265

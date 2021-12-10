@@ -1,0 +1,81 @@
+trip,date,category,Weight,BMI,Body Fat,Lean Mass,Muscle Percentage,Water Percentage
+kalhari waterpark,2021-09-26,pretrip,190.26,28.8,27.3,138.32,39.1,53.1
+kalhari waterpark,2021-09-27,pretrip,189.82,28.8,27.2,138.19,39.1,53.1
+kalhari waterpark,2021-09-28,pretrip,190.26,28.8,27.3,138.32,39.1,53.1
+kalhari waterpark,2021-09-29,pretrip,189.6,28.7,27.2,138.03,39.1,53.2
+kalhari waterpark,2021-09-30,pretrip,186.51,28.3,26.6,136.9,39.4,53.6
+kalhari waterpark,2021-10-01,trip,186.29,28.2,26.6,136.74,39.4,53.6
+kalhari waterpark,2021-10-02,trip,187.1175,NA,NA,NA,NA,NA
+kalhari waterpark,2021-10-03,trip,187.945,NA,NA,NA,NA,NA
+kalhari waterpark,2021-10-04,posttrip,188.77249999999998,NA,NA,NA,NA,NA
+kalhari waterpark,2021-10-05,posttrip,189.6,28.7,27.2,138.03,39.1,53.2
+kalhari waterpark,2021-10-06,posttrip,189.82,28.8,NA,189.82,NA,NA
+kalhari waterpark,2021-10-07,posttrip,190.26,28.8,27.3,138.32,39.1,53.1
+kalhari waterpark,2021-10-08,posttrip,186.51,28.3,26.6,136.9,39.4,53.6
+kalhari waterpark,2021-10-09,posttrip,183.87,27.9,26.1,135.88,39.6,54.0
+kalhari waterpark,2021-10-10,posttrip,NA,NA,NA,NA,NA,NA
+kalhari waterpark,2021-10-11,posttrip,NA,NA,NA,NA,NA,NA
+kalhari waterpark,2021-10-12,posttrip,NA,NA,NA,NA,NA,NA
+kalhari waterpark,2021-10-13,posttrip,NA,NA,NA,NA,NA,NA
+new jersey trip for Nidhi's birthday,2021-04-19,pretrip,188.71,28.6,27.0,137.76,39.2,53.3
+new jersey trip for Nidhi's birthday,2021-04-20,pretrip,187.61,28.4,26.8,137.33,39.3,53.4
+new jersey trip for Nidhi's birthday,2021-04-21,pretrip,190.04,28.8,27.3,138.16,39.1,53.1
+new jersey trip for Nidhi's birthday,2021-04-22,pretrip,187.61,28.4,26.9,137.14,39.3,53.4
+new jersey trip for Nidhi's birthday,2021-04-23,pretrip,187.17,28.4,26.8,137.01,39.3,53.5
+new jersey trip for Nidhi's birthday,2021-04-24,trip,189.38,28.7,27.2,137.87,39.1,53.2
+new jersey trip for Nidhi's birthday,2021-04-25,trip,196.65,29.8,28.4,140.8,38.6,52.3
+new jersey trip for Nidhi's birthday,2021-04-26,posttrip,196.21,29.7,28.3,140.68,38.6,52.3
+new jersey trip for Nidhi's birthday,2021-04-27,posttrip,192.68,29.2,27.8,139.12,38.9,52.7
+new jersey trip for Nidhi's birthday,2021-04-28,posttrip,190.04,28.8,27.3,138.16,39.1,53.1
+new jersey trip for Nidhi's birthday,2021-04-29,posttrip,190.92,28.9,27.4,138.61,39.0,53.0
+new jersey trip for Nidhi's birthday,2021-04-30,posttrip,194.01,29.4,28.0,139.69,38.8,52.6
+new jersey trip for Nidhi's birthday,2021-05-01,posttrip,190.26,28.8,27.3,138.32,39.1,53.1
+new jersey trip for Nidhi's birthday,2021-05-02,posttrip,190.92,28.9,27.5,138.42,39.0,53.0
+new jersey trip for Nidhi's birthday,2021-05-03,posttrip,191.14,29.0,27.5,138.58,39.0,52.9
+new jersey trip for Nidhi's birthday,2021-05-04,posttrip,189.16,28.7,27.1,137.9,39.2,53.2
+new jersey trip for Nidhi's birthday,2021-05-05,posttrip,189.16,28.7,27.1,137.9,39.2,53.2
+smoky mountains,2021-06-27,pretrip,188.93,28.6,27.0,137.92,39.2,53.3
+smoky mountains,2021-06-28,pretrip,184.3,27.9,NA,184.3,NA,NA
+smoky mountains,2021-06-28,pretrip,184.3,27.9,NA,184.3,NA,NA
+smoky mountains,2021-06-29,pretrip,190.48,28.9,27.4,138.29,39.1,53.0
+smoky mountains,2021-06-30,pretrip,188.71,28.6,NA,188.71,NA,NA
+smoky mountains,2021-07-01,pretrip,190.9,28.9,NA,190.9,NA,NA
+smoky mountains,2021-07-02,trip,189.38,28.7,27.1,138.06,39.1,53.2
+smoky mountains,2021-07-03,trip,191.36,29.0,27.4,138.93,39.0,53.0
+smoky mountains,2021-07-04,trip,191.36,29.0,27.5,138.74,39.0,52.9
+smoky mountains,2021-07-05,trip,192,29.1,NA,192,NA,NA
+smoky mountains,2021-07-06,posttrip,192.46,29.2,27.7,139.15,38.9,52.8
+smoky mountains,2021-07-07,posttrip,190.7,28.9,27.4,138.45,39.0,53.0
+smoky mountains,2021-07-08,posttrip,189.6,28.7,27.2,138.03,39.1,53.1
+smoky mountains,2021-07-09,posttrip,188.5,28.6,27.0,137.6,39.2,53.3
+smoky mountains,2021-07-10,posttrip,186.95,28.3,26.7,137.04,39.3,53.5
+smoky mountains,2021-07-11,posttrip,188.05,28.5,26.9,137.47,39.3,53.4
+smoky mountains,2021-07-12,posttrip,189.16,28.7,27.1,137.9,39.2,53.2
+smoky mountains,2021-07-12,posttrip,190.04,28.8,27.3,138.16,39.1,53.1
+smoky mountains,2021-07-13,posttrip,189.82,28.8,27.2,138.19,39.1,53.1
+smoky mountains,2021-07-14,posttrip,188.05,28.5,26.9,137.47,39.3,53.4
+smoky mountains,2021-07-15,posttrip,188.93,28.6,27.0,137.92,39.2,53.3
+summer ocean getaway to myrtle beach and hilton head,2021-08-08,pretrip,187.17,28.4,26.7,137.2,39.3,53.5
+summer ocean getaway to myrtle beach and hilton head,2021-08-09,pretrip,187.61,28.4,26.8,137.33,39.3,53.4
+summer ocean getaway to myrtle beach and hilton head,2021-08-10,pretrip,184.09,27.9,26.1,136.04,39.6,53.9
+summer ocean getaway to myrtle beach and hilton head,2021-08-11,pretrip,185.41,28.1,26.4,136.46,39.5,53.7
+summer ocean getaway to myrtle beach and hilton head,2021-08-12,pretrip,186.07,28.2,26.5,136.76,39.4,53.7
+summer ocean getaway to myrtle beach and hilton head,2021-08-13,trip,187.83,28.5,26.9,137.31,39.3,53.4
+summer ocean getaway to myrtle beach and hilton head,2021-08-14,trip,186.29,28.2,26.5,136.92,39.4,53.7
+summer ocean getaway to myrtle beach and hilton head,2021-08-15,trip,189.38,28.7,27.1,138.06,39.2,53.2
+summer ocean getaway to myrtle beach and hilton head,2021-08-16,trip,189.6,28.7,27.1,138.22,39.1,53.2
+summer ocean getaway to myrtle beach and hilton head,2021-08-17,trip,191.14,29.0,27.4,138.77,39.0,53.0
+summer ocean getaway to myrtle beach and hilton head,2021-08-18,trip,192.9,29.2,27.8,139.28,38.9,52.7
+summer ocean getaway to myrtle beach and hilton head,2021-08-19,trip,191.58,29.0,27.5,138.9,39.0,52.9
+summer ocean getaway to myrtle beach and hilton head,2021-08-20,trip,190.7,28.9,27.4,138.45,39.0,53.0
+summer ocean getaway to myrtle beach and hilton head,2021-08-21,posttrip,189.8,28.8,NA,189.8,NA,NA
+summer ocean getaway to myrtle beach and hilton head,2021-08-21,posttrip,194.23,29.4,NA,194.23,NA,NA
+summer ocean getaway to myrtle beach and hilton head,2021-08-22,posttrip,189.38,28.7,27.1,138.06,39.2,53.2
+summer ocean getaway to myrtle beach and hilton head,2021-08-23,posttrip,189.38,28.7,27.1,138.06,39.2,53.2
+summer ocean getaway to myrtle beach and hilton head,2021-08-24,posttrip,186.29,28.2,26.6,136.74,39.4,53.6
+summer ocean getaway to myrtle beach and hilton head,2021-08-25,posttrip,184.75,28.0,26.3,136.16,39.5,53.8
+summer ocean getaway to myrtle beach and hilton head,2021-08-26,posttrip,183.65,27.8,26.1,135.71,39.6,54.0
+summer ocean getaway to myrtle beach and hilton head,2021-08-27,posttrip,185.19,28.1,26.3,136.48,39.5,53.8
+summer ocean getaway to myrtle beach and hilton head,2021-08-28,posttrip,185.41,28.1,26.4,136.46,39.5,53.7
+summer ocean getaway to myrtle beach and hilton head,2021-08-29,posttrip,183.87,27.9,26.1,135.88,39.6,53.9
+summer ocean getaway to myrtle beach and hilton head,2021-08-30,posttrip,183.87,27.9,26.1,135.88,39.6,53.9
